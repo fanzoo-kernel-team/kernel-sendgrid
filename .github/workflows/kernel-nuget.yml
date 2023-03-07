@@ -1,0 +1,41 @@
+name: Kernel.SendGrid NuGet Release
+
+on:
+  workflow_dispatch:
+  release:
+      types: [published]
+env:
+  PROJECT_PATH: 'src/Fanzoo.Kernel.SendGrid.csproj'
+  PACKAGE_OUTPUT_DIRECTORY: '${{ github.workspace }}/.nuget/'
+  NUGET_SOURCE_URL: 'https://api.nuget.org/v3/index.json'
+
+jobs:
+  publish-nuget:
+
+    runs-on: ubuntu-latest
+
+    name: Publish NuGet Release
+    steps:
+    
+    - uses: actions/checkout@v3
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 7.0.x
+        
+    - name: Restore dependencies
+      run: dotnet restore
+      
+    - name: Build
+      run: dotnet build -c Release --no-restore
+
+    - name: Get Version
+      id: version
+      uses: battila7/get-version-action@v2
+
+    - name: 'Pack project'
+      run: dotnet pack ${{ env.PROJECT_PATH }} --no-restore --no-build --configuration Release --include-symbols -p:PackageVersion=${{ steps.version.outputs.version-without-v }} --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
+
+    - name: 'Push package'
+      run: dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIRECTORY }}\*.nupkg -k ${{ secrets.KERNEL_SENDGRID_NUGET_API }} -s ${{ env.NUGET_SOURCE_URL }} --skip-duplicate            
