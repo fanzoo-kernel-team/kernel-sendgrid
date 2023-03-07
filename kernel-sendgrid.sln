@@ -3,12 +3,21 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33103.184
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fanzoo.Kernel.SendGrid", "Fanzoo.Kernel.SendGrid.csproj", "{A99C6040-F69A-43E3-9B8B-12A30B9F0B79}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fanzoo.Kernel.SendGrid", "src\Fanzoo.Kernel.SendGrid\Fanzoo.Kernel.SendGrid.csproj", "{A99C6040-F69A-43E3-9B8B-12A30B9F0B79}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D8C6BB78-BAB4-4213-8F2A-96AE6E7C1030}"
 	ProjectSection(SolutionItems) = preProject
-		..\..\.editorconfig = ..\..\.editorconfig
-		..\..\README.md = ..\..\README.md
+		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{A2FC1295-0936-46BC-85BC-853BC911628C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{F0955BC8-C527-4D9F-B31E-193066667867}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\kernel-ci.yml = .github\workflows\kernel-ci.yml
+		.github\workflows\kernel-nuget.yml = .github\workflows\kernel-nuget.yml
 	EndProjectSection
 EndProject
 Global
@@ -24,6 +33,10 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A2FC1295-0936-46BC-85BC-853BC911628C} = {D8C6BB78-BAB4-4213-8F2A-96AE6E7C1030}
+		{F0955BC8-C527-4D9F-B31E-193066667867} = {A2FC1295-0936-46BC-85BC-853BC911628C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D9148C72-9842-44BF-8B89-CC8B9F0AC3C8}
