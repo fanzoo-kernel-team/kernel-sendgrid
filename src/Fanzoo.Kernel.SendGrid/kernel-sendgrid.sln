@@ -5,10 +5,10 @@ VisualStudioVersion = 17.4.33103.184
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fanzoo.Kernel.SendGrid", "Fanzoo.Kernel.SendGrid.csproj", "{A99C6040-F69A-43E3-9B8B-12A30B9F0B79}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{95D39BE2-1730-4364-A757-D8814B6E3B97}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D8C6BB78-BAB4-4213-8F2A-96AE6E7C1030}"
 	ProjectSection(SolutionItems) = preProject
-		..\.editorconfig = ..\.editorconfig
-		..\README.md = ..\README.md
+		..\..\.editorconfig = ..\..\.editorconfig
+		..\..\README.md = ..\..\README.md
 	EndProjectSection
 EndProject
 Global
