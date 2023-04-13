@@ -17,7 +17,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Fanzoo.Kernel" Version="1.3.3" />
+		<PackageReference Include="Fanzoo.Kernel" Version="1.5" />
 		<PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.5.22">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -32,5 +32,4 @@
 	<ItemGroup>
 		<None Include="logo.png" Pack="true" Visible="false" PackagePath="logo.png" />
 	</ItemGroup>
-
 </Project>
