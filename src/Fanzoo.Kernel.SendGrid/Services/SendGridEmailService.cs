@@ -1,77 +1,90 @@
-﻿using System.Text.RegularExpressions;
-using Fanzoo.Kernel.SendGrid.Services.Configuration;
-using Fanzoo.Kernel.Services;
+﻿using Fanzoo.Kernel.Services;
 using Microsoft.Extensions.Options;
+using MimeKit;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 using Attachment = SendGrid.Helpers.Mail.Attachment;
 
 namespace Fanzoo.Kernel.SendGrid.Services
 {
+    public class SendGridSettings
+    {
+        public const string SectionName = $"{EmailServiceFactorySettings.SectionName}:Settings";
+
+        public string? From { get; set; } = default!;
+
+        public string ApiKey { get; set; } = default!;
+    }
+
     public sealed class SendGridEmailService : IEmailService
     {
-        private readonly SendGridSmtpSettings _sendGridSettings;
+        private readonly SendGridSettings _settings;
 
-        public SendGridEmailService(IOptions<SendGridSmtpSettings> sendGridSettings)
+        public SendGridEmailService(IOptions<SendGridSettings> sendGridSettings)
         {
-            _sendGridSettings = sendGridSettings.Value;
+            _settings = sendGridSettings.Value;
         }
 
-        public async ValueTask SendEmailAsync(string[] to, string[] cc, string[] bcc, string fromEmail, string? fromName, string subject, string htmlContent, string? plainTextContent, EmailAttachment[] attachments)
-        {
-            var client = new SendGridClient(_sendGridSettings.SendGrid.ApiKey);
+        public string Name => "SendGrid";
 
-            if (plainTextContent.IsNullOrWhitespace())
+        public async ValueTask SendEmailAsync(string[] to, string subject, string? from = null, string[]? cc = null, string[]? bcc = null, string? htmlContent = null, string? plainTextContent = null, EmailAttachment[]? attachments = null)
+        {
+            var client = new SendGridClient(_settings.ApiKey);
+
+            from ??= _settings.From;
+
+            if (from is null)
             {
-                plainTextContent = Regex.Replace(htmlContent, "<[^>]*>", "");
+                throw new ArgumentNullException(nameof(from));
             }
 
-            var email = new SendGridMessage()
+            var message = new SendGridMessage
             {
-                From = fromEmail.ToEmailAddress(fromName),
+                From = from.ToEmailAddress(),
                 Subject = subject,
                 HtmlContent = htmlContent,
                 PlainTextContent = plainTextContent
             };
 
-            email.AddTos(to.Select(t => t.ToEmailAddress()).ToList());
+            message.AddTos(to.Select(t => t.ToEmailAddress()).ToList());
 
-            if (cc.Length > 0)
+            if (cc is not null)
             {
-                email.AddCcs(cc.Select(c => c.ToEmailAddress()).ToList());
+                message.AddCcs(cc.Select(b => b.ToEmailAddress()).ToList());
             }
 
-            if (bcc.Length > 0)
+            if (bcc is not null)
             {
-                email.AddBccs(bcc.Select(b => b.ToEmailAddress()).ToList());
+                message.AddBccs(bcc.Select(b => b.ToEmailAddress()).ToList());
             }
 
-            if (attachments.Length > 0)
+            if (attachments is not null)
             {
-                email.AddAttachments(attachments.Select(a => a.ToSendGridAttachment()).ToList());
+                message.AddAttachments(attachments.Select(a => a.ToSendGridAttachment()));
             }
 
-#if DEBUG
-#pragma warning disable S1481 // Unused local variables should be removed
-            var result = await client.SendEmailAsync(email);
-#pragma warning restore S1481 // Unused local variables should be removed
-#else
-            _ = await client.SendEmailAsync(email);
-#endif
+            var result = await client.SendEmailAsync(message);
+
+            if (result.IsSuccessStatusCode is not true)
+            {
+                var body = await result.Body.ReadAsStringAsync();
+
+                throw new InvalidOperationException($"Sending message failed.\n\n{body}");
+            }
         }
-
-        public async ValueTask SendEmailAsync(string to, string subject, string htmlContent) =>
-            await SendEmailAsync(new string[] { to }, Array.Empty<string>(), Array.Empty<string>(), _sendGridSettings.From, null, subject, htmlContent, null, Array.Empty<EmailAttachment>());
-
-        public async ValueTask SendEmailAsync(string to, string fromEmail, string fromName, string subject, string htmlContent) =>
-            await SendEmailAsync(new string[] { to }, Array.Empty<string>(), Array.Empty<string>(), fromEmail, fromName, subject, htmlContent, null, Array.Empty<EmailAttachment>());
     }
 
-    internal static class Extensions
+    static file class Extensions
     {
-        internal static EmailAddress ToEmailAddress(this string value, string? name = null) => new(value, name);
+        public static EmailAddress ToEmailAddress(this string value)
+        {
+            //use MailKit's parser :)
+            var mailboxAddress = MailboxAddress.Parse(value);
 
-        internal static Attachment ToSendGridAttachment(this EmailAttachment attachment) => new()
+            return new(mailboxAddress.Name, mailboxAddress.Address);
+        }
+
+        public static Attachment ToSendGridAttachment(this EmailAttachment attachment) => new()
         {
             Content = Convert.ToBase64String(attachment.Data),
             Filename = attachment.Filename,
