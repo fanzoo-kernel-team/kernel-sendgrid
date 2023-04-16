@@ -81,7 +81,7 @@ namespace Fanzoo.Kernel.SendGrid.Services
             //use MailKit's parser :)
             var mailboxAddress = MailboxAddress.Parse(value);
 
-            return new(mailboxAddress.Name, mailboxAddress.Address);
+            return new(mailboxAddress.Address, mailboxAddress.Name);
         }
 
         public static Attachment ToSendGridAttachment(this EmailAttachment attachment) => new()
